@@ -5,10 +5,10 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON( "package.json" ),
 		jshint: {
-			dist: {
-				src: [ "lib/globalize.js", "lib/cultures/*.js" ],
+			source: {
+				src: [ "src/*.js" ],
 				options: {
-					jshintrc: ".jshintrc"
+					jshintrc: "src/.jshintrc"
 				}
 			},
 			grunt: {
