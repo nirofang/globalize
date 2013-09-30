@@ -3,8 +3,9 @@ define([
 	"./get-first-day-of-week",
 	"./get-milliseconds-in-day",
 	"./pattern-re",
+	"./week-days",
 	"../util/string/pad"
-], function( datetimeGetDayOfYear, datetimeGetFirstDayOfWeek, datetimeGetMillisecondsInDay, datetimePatternRe, stringPad ) {
+], function( datetimeGetDayOfYear, datetimeGetFirstDayOfWeek, datetimeGetMillisecondsInDay, datetimePatternRe, datetimeWeekDays, stringPad ) {
 
 	/**
 	 * format
@@ -56,21 +57,28 @@ define([
 						pad = true;
 					} else {
 						// TODO documentation does not mention narrow, although narrow data is present.
-						// FIXME cldr
-						ret = cldr.dates.calendars.gregorian.quarters[ chr === "Q" ? "format" : "stand-alone" ][ widths[ length - 3 ] ];
+						ret = cldr.main([
+							"dates/calendars/gregorian/quarters",
+							chr === "Q" ? "format" : "stand-alone",
+							widths[ length - 3 ],
+							ret
+						]);
 					}
 					break;
 
 				// Month
 				case "M":
 				case "L":
-					var month = date.getMonth();
+					ret = date.getMonth() + 1;
 					if ( length <= 2 ) {
-						ret = month + 1;
 						pad = true;
 					} else {
-						// FIXME cldr
-						ret = cldr.dates.calendars.gregorian.months[ chr === "M" ? "format" : "stand-alone" ][ widths[ length - 3 ] ];
+						ret = cldr.main([
+							"dates/calendars/gregorian/months",
+							chr === "M" ? "format" : "stand-alone",
+							widths[ length - 3 ],
+							ret
+						]);
 					}
 					break;
 
@@ -97,27 +105,38 @@ define([
 				case "e":
 				case "c":
 					if ( length <= 2 ) {
-						// FIXME cldr.firstDay http://www.unicode.org/reports/tr35/tr35-dates.html#Week_Data
-						// FIXME Is it [0-6] or [1-7] (picked)?
+						// Range is [1-7] (deduced by example provided on documentation)
 						// FIXME Should pad with zeros (not specified in the docs)?
-						ret = ( date.getDay() - datetimeGetFirstDayOfWeek( cldr ) + 8 ) % 7;
+						ret = ( date.getDay() - datetimeGetFirstDayOfWeek( cldr ) + 7 ) % 7 + 1;
 						pad = true;
 						break;
 					}
 
 				case "E":
-					ret = date.getDay();
+					ret = datetimeWeekDays[ date.getDay() ];
 					// FIXME cldr
 					if ( length === 6 ) {
 						// FIXME what's the diff between "short day" and "short name (EEEEEE)"???
 						// -> Guess this is abbreviated. Docs are wrong.
 						// Note: if short day names are not explicitly specified, abbreviated day names are used instead http://www.unicode.org/reports/tr35/tr35-dates.html#months_days_quarters_eras
-						ret = (
-							cldr.dates.calendars.gregorian.days[ chr === "c" ? "stand-alone" : "format" ].short ||
-							cldr.dates.calendars.gregorian.days[ chr === "c" ? "stand-alone" : "format" ].abbreviated
-						)[ widths[ length - 3 ] ];
+						ret = cldr.main([
+								"dates/calendars/gregorian/days",
+								[ chr === "c" ? "stand-alone" : "format" ],
+								"short",
+								ret
+							]) || cldr.main([
+								"dates/calendars/gregorian/days",
+								[ chr === "c" ? "stand-alone" : "format" ],
+								"abbreviated",
+								ret
+							]);
 					} else {
-						ret = cldr.dates.calendars.gregorian.days[ chr === "c" ? "stand-alone" : "format" ][ widths[ length - 3 ] ];
+						ret = cldr.main([
+							"dates/calendars/gregorian/days",
+							[ chr === "c" ? "stand-alone" : "format" ],
+							widths[ length < 3 ? 0 : length - 3 ],
+							ret
+						]);
 					}
 					break;
 
@@ -132,13 +151,13 @@ define([
 
 				// Hour
 				case "h": // 1-12
-					// TODO When used in skeleton data or in a skeleton passed in an API for flexible date pattern generation, it should match the 12-hour-cycle format preferred by the locale
+					// TODO When used in skeleton data or in a skeleton passed in an API for flexible date pattern generation, it should match the 12-hour-cycle format preferred by the cldr
 					ret = ( date.getHours() % 12 ) || 12;
 					pad = true;
 					break;
 
 				case "H": // 0-23
-					// TODO When used in skeleton data or in a skeleton passed in an API for flexible date pattern generation, it should match the 12-hour-cycle format preferred by the locale
+					// TODO When used in skeleton data or in a skeleton passed in an API for flexible date pattern generation, it should match the 12-hour-cycle format preferred by the cldr
 					ret = date.getHours();
 					pad = true;
 					break;
