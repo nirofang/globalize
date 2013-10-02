@@ -200,7 +200,10 @@ define([
 		 *  Period
 		 */
 
-		// TODO all
+		it( "should format period (a)", function() {
+			expect( Globalize.format( date1, "a" ) ).to.equal( "AM" );
+			expect( Globalize.format( date2, "a" ) ).to.equal( "PM" );
+		});
 
 		/**
 		 *  Hour
@@ -290,6 +293,14 @@ define([
 			expect( Globalize.format( date2, "SSS" ) ).to.equal( "369" );
 			expect( Globalize.format( date2, "SSSS" ) ).to.equal( "3690" );
 			expect( Globalize.format( date2, "SSSSS" ) ).to.equal( "36900" );
+		});
+
+		it( "should format various milliseconds (A+)", function() {
+			expect( Globalize.format( date2, "A" ) ).to.equal( "633074" );
+			expect( Globalize.format( date2, "AA" ) ).to.equal( "6330737" );
+			expect( Globalize.format( date2, "AAA" ) ).to.equal( "63307369" );
+			expect( Globalize.format( date2, "AAAA" ) ).to.equal( "633073690" );
+			expect( Globalize.format( date2, "AAAAA" ) ).to.equal( "6330736900" );
 		});
 
 		/**
