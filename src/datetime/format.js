@@ -13,7 +13,7 @@ define([
 	 * ref: http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns
 	 * TODO Support other calendar types.
 	 *
-	 * Disclosure: this function contains excerpts of dojo/date/locale.
+	 * Disclosure: this function borrows excerpts of dojo/date/locale.
 	 */
 	return function( date, pattern, cldr ) {
 		var widths = [ "abbreviated", "wide", "narrow" ];
