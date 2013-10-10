@@ -1,12 +1,12 @@
 define([
-	"./get-day-of-year",
-	"./get-first-day-of-week",
-	"./get-milliseconds-in-day",
+	"./day-of-year",
+	"./first-day-of-week",
+	"./milliseconds-in-day",
 	"./pattern-re",
 	"./week-day",
 	"./week-days",
 	"../util/string/pad"
-], function( datetimeGetDayOfYear, datetimeGetFirstDayOfWeek, datetimeGetMillisecondsInDay, datetimePatternRe, datetimeWeekDay, datetimeWeekDays, stringPad ) {
+], function( datetimeDayOfYear, datetimeFirstDayOfWeek, datetimeMillisecondsInDay, datetimePatternRe, datetimeWeekDay, datetimeWeekDays, stringPad ) {
 
 	/**
 	 * format
@@ -47,7 +47,7 @@ define([
 				// yearInWeekofYear = date + DaysInAWeek - (dayOfWeek - firstDay) - minDays
 				case "Y":
 					ret = new Date( date.getTime() );
-					ret.setDate( ret.getDate() + 7 - ( datetimeWeekDay( date, cldr ) - datetimeGetFirstDayOfWeek( cldr ) ) - cldr.supplemental.minDays() );
+					ret.setDate( ret.getDate() + 7 - ( datetimeWeekDay( date, cldr ) - datetimeFirstDayOfWeek( cldr ) ) - cldr.supplemental.minDays() );
 					ret = String( ret.getFullYear() );
 					pad = true;
 					if ( length === 2 ) {
@@ -105,7 +105,7 @@ define([
 
 				case "D":
 					// FIXME getDayOfYear
-					ret = datetimeGetDayOfYear( date );
+					ret = datetimeDayOfYear( date );
 					pad = true;
 					break;
 
@@ -201,7 +201,7 @@ define([
 					break;
 
 				case "A":
-					ret = Math.round( datetimeGetMillisecondsInDay( date ) * Math.pow( 10, length - 3 ) );
+					ret = Math.round( datetimeMillisecondsInDay( date ) * Math.pow( 10, length - 3 ) );
 					pad = true;
 					break;
 
