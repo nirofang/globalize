@@ -3,9 +3,10 @@ define([
 	"./get-first-day-of-week",
 	"./get-milliseconds-in-day",
 	"./pattern-re",
+	"./week-day",
 	"./week-days",
 	"../util/string/pad"
-], function( datetimeGetDayOfYear, datetimeGetFirstDayOfWeek, datetimeGetMillisecondsInDay, datetimePatternRe, datetimeWeekDays, stringPad ) {
+], function( datetimeGetDayOfYear, datetimeGetFirstDayOfWeek, datetimeGetMillisecondsInDay, datetimePatternRe, datetimeWeekDay, datetimeWeekDays, stringPad ) {
 
 	/**
 	 * format
@@ -36,6 +37,18 @@ define([
 				// Year (the length specifies the padding, but for two letters it also specifies the maximum length)
 				case "y":
 					ret = String( date.getFullYear() );
+					pad = true;
+					if ( length === 2 ) {
+						ret = ret.substr( ret.length - 2 );
+					}
+					break;
+
+				// Year in "Week of Year" (the length specifies the padding, but for two letters it also specifies the maximum length)
+				// yearInWeekofYear = date + DaysInAWeek - (dayOfWeek - firstDay) - minDays
+				case "Y":
+					ret = new Date( date.getTime() );
+					ret.setDate( ret.getDate() + 7 - ( datetimeWeekDay( date, cldr ) - datetimeGetFirstDayOfWeek( cldr ) ) - cldr.supplemental.minDays() );
+					ret = String( ret.getFullYear() );
 					pad = true;
 					if ( length === 2 ) {
 						ret = ret.substr( ret.length - 2 );
@@ -104,8 +117,8 @@ define([
 				case "c":
 					if ( length <= 2 ) {
 						// Range is [1-7] (deduced by example provided on documentation)
-						// FIXME Should pad with zeros (not specified in the docs)?
-						ret = ( date.getDay() - datetimeGetFirstDayOfWeek( cldr ) + 7 ) % 7 + 1;
+						// TODO Should pad with zeros (not specified in the docs)?
+						ret = datetimeWeekDay( date, cldr ) + 1;
 						pad = true;
 						break;
 					}
